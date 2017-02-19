@@ -117,9 +117,9 @@ def eliminate(values):
     solved_values = [box for box in values.keys() if len(values[box]) == 1]
     for box in solved_values:
         digit = values[box]
-        for peer in peers[box]:
+        for peer in peers[box]: # Peers Not Including Diagonal Boxes
             values[peer] = values[peer].replace(digit, '')
-        for diagonal_unit in diagonal_units:
+        for diagonal_unit in diagonal_units: # Diagonal Constraint
             if box in diagonal_unit:
                 for diagonal_box in diagonal_unit:
                     if len(values[diagonal_box]) > 1:  # Shouldn't Modify the Original Value
