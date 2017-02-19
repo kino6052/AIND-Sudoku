@@ -1,5 +1,14 @@
 assignments = []
 
+rows = 'ABCDEFGHI'
+cols = '123456789'
+
+def cross(A, B):
+    "Cross product of elements in A and elements in B."
+    return [a + b for a in A for b in B]
+
+boxes = cross(rows, cols)
+
 def assign_value(values, box, value):
     """
     Please use this function to update your values dictionary!
@@ -21,10 +30,6 @@ def naked_twins(values):
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
-
-def cross(A, B):
-    "Cross product of elements in A and elements in B."
-    pass
 
 def grid_values(grid):
     """
