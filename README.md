@@ -3,11 +3,11 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: Every reduction step that includes "eliminate" and "only choice" constraints we look at every unit in the grid and look for boxes that contain same two values. If there are such boxes in the unit, we remove these values from the rest of the unit leaving only these two boxes with these values.
+A: For every reduction step that includes "eliminate" and "only choice" constraints we look at every unit in the grid and look for boxes that contain same two values. If there are such boxes in the unit, we remove these values from the rest of the unit except for the twins.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: At the beginning of every reduction step we eliminate values that already solved in a diagonal from the rest of the diagonal for both diagonals.
+A: At the beginning of every reduction step we eliminate values in a diagonal that are already solved from the rest of the diagonal. This applies for both diagonals.
 
 ### Install
 

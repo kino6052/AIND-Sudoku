@@ -21,7 +21,7 @@ square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', 
 diagonal_units = [zip_strings(rows, cols), zip_strings(rows, cols[::-1])] # List of Diagonal Units
 unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
-peers = dict((s, set(sum(units[s], [])) - set([s]) - diagonal_units[0] - diagonal_units[1]) for s in boxes)  # Make
+peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)  # Make
 # Sure Diagonal Units Are not There
 
 
@@ -56,7 +56,7 @@ def naked_twins(values):
                 else:
                     twin_dictionary[box_value] = [box]
         # Eliminate the naked twins as possibilities for their peers
-        values = remove_twins_from_unit(values, get_list_of_twins(twin_dictionary), unit)
+        values = remove_twins_from_peers(values, get_list_of_twins(twin_dictionary), unit)
     return values
 
 
@@ -64,12 +64,13 @@ def get_list_of_twins(twin_dictionary):
     return [key for key, value in twin_dictionary.items() if len(value) == 2]
 
 
-def remove_twins_from_unit(values, twins, unit):
+def remove_twins_from_peers(values, twins, unit):
     for twin in twins:
         for box in unit:
             if values[box] != twin:
-                values[box] = values[box].replace(twin, "")
+                values[box] = values[box].replace(twin[0], "").replace(twin[1], "")
     return values
+
 
 def grid_values(grid):
     """
@@ -119,11 +120,17 @@ def eliminate(values):
         digit = values[box]
         for peer in peers[box]: # Peers Not Including Diagonal Boxes
             values[peer] = values[peer].replace(digit, '')
-        for diagonal_unit in diagonal_units: # Diagonal Constraint
-            if box in diagonal_unit:
-                for diagonal_box in diagonal_unit:
-                    if len(values[diagonal_box]) > 1:  # Shouldn't Modify the Original Value
-                        values[diagonal_box] = values[diagonal_box].replace(digit, '')
+    return values
+
+
+def eliminate_diagonals(values):
+    for diagonal_unit in diagonal_units:
+        solved_values = [box for box in diagonal_unit if len(values[box]) == 1]
+        for box in solved_values:
+            digit = values[box]
+            for peer in diagonal_unit:
+                if len(values[peer]) > 1:  # Shouldn't Modify the Original Value
+                    values[peer] = values[peer].replace(digit, '')
     return values
 
 
@@ -132,7 +139,7 @@ def only_choice(values):
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
-                values[dplaces[0]] = digit
+                values = assign_value(values, dplaces[0], digit)
     return values
 
 
@@ -141,6 +148,7 @@ def reduce_puzzle(values):
     stalled = False
     while not stalled:
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
+        values = eliminate_diagonals(values)
         values = eliminate(values)
         values = only_choice(values)
         values = naked_twins(values)
@@ -170,6 +178,17 @@ def search(values):
         if attempt:
             return attempt
 
+def is_sudoku_correct(values):
+    for unitBox in units:
+        for unit in units[unitBox]:
+            numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            for box in unit:
+                numbers.remove(values[box])
+    for diagonal in diagonal_units:
+        numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+        for box in diagonal:
+            numbers.remove(values[box])
+    return True
 
 def solve(grid):
     """
