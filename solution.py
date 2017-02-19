@@ -2,7 +2,6 @@ assignments = []
 
 rows = 'ABCDEFGHI'
 cols = '123456789'
-diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
 
 
 def cross(A, B):
@@ -18,11 +17,10 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', '456', '789')]
-diagonal_units = [zip_strings(rows, cols), zip_strings(rows, cols[::-1])] # List of Diagonal Units
+diagonal_units = [zip_strings(rows, cols), zip_strings(rows, cols[::-1])]  # List of Diagonal Units
 unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
-peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)  # Make
-# Sure Diagonal Units Are not There
+peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)
 
 
 def assign_value(values, box, value):
@@ -49,14 +47,15 @@ def naked_twins(values):
     for unit in unitlist:
         twin_dictionary = {}
         for box in unit:
-            if len(values[box]) == 2:
+            if len(values[box]) == 2:  # Look Only for Values of Length 2
                 box_value = values[box]
+                # Construct Twin Dictionary with Keys Being "value" ("12", "47", etc.) and Values being Array of Boxes (["A1", "A2"]) etc.
                 if box_value in twin_dictionary.keys():
                     twin_dictionary[box_value].append(box)
                 else:
                     twin_dictionary[box_value] = [box]
         # Eliminate the naked twins as possibilities for their peers
-        values = remove_twins_from_peers(values, get_list_of_twins(twin_dictionary), unit)
+        values = remove_twins_from_unit(values, get_list_of_twins(twin_dictionary), unit)
     return values
 
 
@@ -64,10 +63,10 @@ def get_list_of_twins(twin_dictionary):
     return [key for key, value in twin_dictionary.items() if len(value) == 2]
 
 
-def remove_twins_from_peers(values, twins, unit):
+def remove_twins_from_unit(values, twins, unit):
     for twin in twins:
         for box in unit:
-            if values[box] != twin:
+            if values[box] != twin:  # Make Sure You Don't Remove Twin Values
                 values[box] = values[box].replace(twin[0], "").replace(twin[1], "")
     return values
 
@@ -124,8 +123,8 @@ def eliminate(values):
 
 
 def eliminate_diagonals(values):
-    for diagonal_unit in diagonal_units:
-        solved_values = [box for box in diagonal_unit if len(values[box]) == 1]
+    for diagonal_unit in diagonal_units:  # Solve for Both Diagonals
+        solved_values = [box for box in diagonal_unit if len(values[box]) == 1]  # Solved Values for Diagonals
         for box in solved_values:
             digit = values[box]
             for peer in diagonal_unit:
